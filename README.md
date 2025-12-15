@@ -224,7 +224,7 @@ npm run dev
 
 ```bash
 # Terminal 2: Start your frontend
-cd simple-spa-ts
+cd u06-vanilla-ts-project--filmlistan
 npm install
 npm run dev
 # Frontend running on http://localhost:5173
