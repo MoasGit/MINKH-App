@@ -12,6 +12,7 @@ export async function getWatchlist(): Promise<Movie[]> {
     }
 
     return await response.json();
+    console.log("test" + response);
   } catch (error) {
     console.error('Error fetching watchlist:', error);
     throw error; // låt anropande kod hantera felet (t.ex. visa felmeddelande i UI:t)
