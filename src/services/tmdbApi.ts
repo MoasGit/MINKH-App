@@ -6,7 +6,7 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 export const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
 // Hämta populära filmer
-export async function fetchPopularMovies(): Promise<TMDBMovie[]> {
+export async function fetchTopMovies(): Promise<TMDBMovie[]> {
   const response = await fetch(
     `${TMDB_BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}&language=en-US&page=1`
   );
@@ -16,6 +16,11 @@ export async function fetchPopularMovies(): Promise<TMDBMovie[]> {
   }
   
   const data = await response.json();
+  console.log(data);
+  
+  /* const firstMovie = data.results[0];
+console.log('First movie ID:', firstMovie.title); */
+
   return data.results;
 }
 
