@@ -1,8 +1,43 @@
+export type MovieStatus = "watchlist" | "watched";
+
+// TMDB-film typ från TMDB API
 export interface TMDBMovie {
     id: number;
     title: string;
     overview: string;
-    posterPath: string | null;
-    releaseDate: string;
-    voteAverage: number;
-  }
+    poster_path: string;
+    release_date: string;
+    vote_average: number;
+}
+
+// Film från din databas (sparade filmer med watchlist eller watched status)
+export interface DatabaseMovie {
+    id: number; // Databas-id
+    tmdb_id: number; // TMDB-id
+    title: string;
+    poster_path: string | null;
+    release_date: string | null;
+    vote_average: number | null;
+    overview: string | null;
+    status: MovieStatus;
+    personal_rating: number | null;
+    review: string | null;
+    is_favorite: number;
+    date_added: string;
+    date_watched: string | null;
+}
+
+// Typ som matchar serverns CreateMovieBody-interface
+export interface CreateMovieBody {
+    tmdb_id: number;
+    title: string;
+    poster_path: string;
+    release_date: string;
+    vote_average: number;
+    overview?: string;
+    status: MovieStatus;
+    personal_rating?: number | null;
+    review?: string | null;
+    is_favorite?: boolean;
+    date_watched?: string | null;
+}
