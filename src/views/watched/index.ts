@@ -1,4 +1,4 @@
-import divTest from "../../components/divTest";
+import divTest from "../../components/divtest";
 
 export default function watched(): HTMLElement {
   const container = document.createElement("div");
