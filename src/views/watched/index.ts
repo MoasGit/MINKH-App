@@ -1,4 +1,4 @@
-import divTest from "../../components/divtest";
+import divTest from "../../components/divTest";
 
 export default function watched(): HTMLElement {
   const container = document.createElement("div");
@@ -7,12 +7,18 @@ export default function watched(): HTMLElement {
   const searchSection = document.createElement("div");
   searchSection.className = "search-section";
   searchSection.innerHTML = `
-    <h2>Watched</h2>
+  <h2>Static shit</h2>
   `;
+  searchSection.appendChild(divTest());
+  const moreShit = document.createElement("p");
+  moreShit.innerHTML = `
+  Här fortsätter skiten!!!!!!!!!!
+  `;
+  searchSection.appendChild(moreShit);
   container.appendChild(searchSection);
 
   // Append the divTest element (call the imported factory)
-  searchSection.appendChild(divTest());
+  //searchSection.appendChild(divTest());
 
   return container;
 }
