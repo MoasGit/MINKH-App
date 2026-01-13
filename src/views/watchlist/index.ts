@@ -1,6 +1,7 @@
 // src/views/watchlist/index.ts
 import { getWatchlist, removeFromWatchlist } from '../../services/movieApi';
 import { TMDB_IMAGE_BASE_URL } from '../../services/tmdbApi';
+import { createWatchedModal } from '../../components/watchedModal';
 import type { DatabaseMovie } from '../../types/movie';
 
 export default function watchList(): HTMLElement {
@@ -17,7 +18,6 @@ export default function watchList(): HTMLElement {
   moviesContainer.innerHTML = '<p class="loading">Loading watchlist...</p>';
   container.appendChild(moviesContainer);
 
-  // Load watchlist
   loadWatchlist(moviesContainer);
 
   return container;
@@ -25,7 +25,10 @@ export default function watchList(): HTMLElement {
 
 async function loadWatchlist(container: HTMLElement) {
   try {
-    const movies = await getWatchlist();
+    const [movies] = await Promise.all([
+      getWatchlist()
+    ]);
+    
     displayWatchlist(movies, container);
   } catch (error) {
     console.error('Error loading watchlist:', error);
@@ -33,7 +36,10 @@ async function loadWatchlist(container: HTMLElement) {
   }
 }
 
-function displayWatchlist(movies: DatabaseMovie[], container: HTMLElement) {
+function displayWatchlist(
+  movies: DatabaseMovie[], 
+  container: HTMLElement
+) {
   if (movies.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
@@ -47,36 +53,67 @@ function displayWatchlist(movies: DatabaseMovie[], container: HTMLElement) {
 
   container.innerHTML = `
     <p class="watchlist-count">${movies.length} movie${movies.length !== 1 ? 's' : ''} in your watchlist</p>
-  ` + movies.map(movie => `
-    <div class="movie-card">
-      <img 
-        src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
-        alt="${movie.title}"
-        onerror="this.src='/placeholder.jpg'"
-      />
-      <div class="movie-info">
-        <h3>${movie.title}</h3>
-        <div class="movie-meta">
-          <span class="rating">⭐ ${movie.vote_average?.toFixed(1) || 'N/A'}</span>
-          <span class="year">${movie.release_date?.substring(0, 4) || 'N/A'}</span>
+  ` + movies.map(movie => {
+      [];
+    
+    return `
+      <div class="movie-card">
+        <img 
+          src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
+          alt="${movie.title}"
+          onerror="this.src='/placeholder.jpg'"
+        />
+        <div class="movie-info">
+          <h3>${movie.title}</h3>
+          <div class="movie-meta">
+            <span class="rating">⭐ ${movie.vote_average?.toFixed(1) || 'N/A'}</span>
+            <span class="year">${movie.release_date?.substring(0, 4) || 'N/A'}</span>
+          </div>
+        
           
-        </div>
-        <div class="description"><p>${movie.overview?.substring(0, 100) || 'N/A'}...</p></div>
-        <p class="date-added">Added: ${new Date(movie.date_added).toLocaleDateString()}</p>
-        <div class="button-group">
-          <button class="btn-primary btn-watched" data-movie-id="${movie.id}">
-            Mark as Watched
-          </button>
-          <button class="btn-remove" data-movie-id="${movie.id}">
-            Remove
-          </button>
+          <p class="date-added">Added: ${new Date(movie.date_added).toLocaleDateString()}</p>
+          <div class="button-group">
+            <button class="btn-primary btn-watched" data-movie-id="${movie.id}">
+              Mark as Watched
+            </button>
+            <button class="btn-remove" data-movie-id="${movie.id}">
+              Remove
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
-  // Attach handlers
+  // ⭐ NYTT: Attach handlers
+  attachWatchedHandlers(container, movies);
   attachRemoveHandlers(container, movies);
+}
+
+// ⭐ NY FUNKTION: Hantera "Mark as Watched"-knappar
+function attachWatchedHandlers(container: HTMLElement, movies: DatabaseMovie[]) {
+  const watchedButtons = container.querySelectorAll('.btn-watched');
+  
+  watchedButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      const btn = e.target as HTMLButtonElement;
+      const movieId = parseInt(btn.dataset.movieId || '0');
+      
+      const movie = movies.find(m => m.id === movieId);
+      if (!movie) return;
+      
+      // Öppna modal
+      const modal = createWatchedModal(movie, () => {
+        // Callback när filmen markerats som watched
+        loadWatchlist(container);
+      });
+      
+      document.body.appendChild(modal);
+      
+      // Fade in animation
+      setTimeout(() => modal.classList.add('show'), 10);
+    });
+  });
 }
 
 function attachRemoveHandlers(container: HTMLElement, movies: DatabaseMovie[]) {
@@ -91,10 +128,7 @@ function attachRemoveHandlers(container: HTMLElement, movies: DatabaseMovie[]) {
       
       try {
         await removeFromWatchlist(movieId);
-        
-        // Reload watchlist
         loadWatchlist(container);
-        
         showNotification('Movie removed from watchlist');
       } catch (error) {
         console.error('Failed to remove movie:', error);
