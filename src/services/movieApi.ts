@@ -67,3 +67,102 @@ export async function removeFromWatchlist(movieId: number): Promise<void> {
     throw error;
   }
 }
+
+
+// ⭐ NY FUNKTION: Markera film som watched
+export async function markAsWatched(
+  movieId: number,
+  rating: number,
+  review?: string
+): Promise<DatabaseMovie> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies/${movieId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        status: 'watched',
+        personal_rating: rating,
+        review: review || null,
+        date_watched: new Date().toISOString().split('T')[0] // YYYY-MM-DD
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to mark as watched');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error marking as watched:', error);
+    throw error;
+  }
+}
+
+// ⭐ NY FUNKTION: Hämta watched movies
+export async function getWatched(): Promise<DatabaseMovie[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies?status=watched`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch watched movies');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching watched movies:', error);
+    throw error;
+  }
+}
+
+// src/services/movieApi.ts
+
+// ... dina andra funktioner ...
+
+// ⭐ NY FUNKTION: Uppdatera watched movie (rating/review)
+export async function updateWatched(
+  movieId: number,
+  rating: number,
+  review?: string
+): Promise<DatabaseMovie> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies/${movieId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        personal_rating: rating,
+        review: review || null
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update movie');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating movie:', error);
+    throw error;
+  }
+}
+
+// ⭐ NY FUNKTION: Ta bort från watched (eller helt från databasen)
+export async function deleteMovie(movieId: number): Promise<void> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies/${movieId}`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete movie');
+    }
+  } catch (error) {
+    console.error('Error deleting movie:', error);
+    throw error;
+  }
+}

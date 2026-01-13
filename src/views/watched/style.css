@@ -1,0 +1,142 @@
+.watched {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.watched-count {
+  margin-bottom: 1.5rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.personal-rating {
+  margin: 0.75rem 0;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.personal-rating strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.stars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.star {
+  font-size: 1.2rem;
+  color: #ddd;
+}
+
+.star.filled {
+  color: #ffd700;
+}
+
+.review {
+  font-style: italic;
+  color: #555;
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-left: 3px solid var(--color-primary);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.date-watched {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0.5rem 0;
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.btn-edit {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.btn-edit:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-remove {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.btn-remove:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-edit:disabled,
+.btn-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-state p {
+  font-size: 1.2rem;
+  color: #666;
+  margin: 1rem 0;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-top: 1rem;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.85;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .btn-edit,
+  .btn-remove {
+    width: 100%;
+  }
+}
