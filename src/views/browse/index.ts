@@ -92,29 +92,6 @@ async function searchMovies(query: string, container: HTMLElement) {
   }
 }
 
-// ⭐ NEW: Reload movies while preserving scroll position
-async function reloadMoviesPreserveScroll(container: HTMLElement) {
-  // Save scroll position
-  const scrollY = window.scrollY;
-  
-  try {
-    const [movies, watchlist, watched] = await Promise.all([
-      fetchTopMovies(),
-      getWatchlist(),
-      getWatched()
-    ]);
-    
-    displayMovies(movies, container, 'Top Rated Movies', watchlist, watched);
-    
-    // Restore scroll position after DOM updates
-    requestAnimationFrame(() => {
-      window.scrollTo(0, scrollY);
-    });
-  } catch (error) {
-    console.error('Error reloading movies:', error);
-  }
-}
-
 function displayMovies(
   movies: TMDBMovie[], 
   container: HTMLElement, 
@@ -142,7 +119,7 @@ function displayMovies(
     const isWatched = watchedIds.has(movie.id);
     
     return `
-      <div class="movie-card" data-movie-id="${movie.id}">
+      <div class="movie-card" data-tmdb-id="${movie.id}">
         <img 
           src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
           alt="${movie.title}"
@@ -157,16 +134,13 @@ function displayMovies(
           <p class="overview">${movie.overview?.substring(0, 100) || 'No description available'}...</p>
           
           <div class="button-group">
-            ${isWatched 
-              ? '<button class="btn-watchlist added" disabled>✓ Watched</button>'
-              : inWatchlist
-                ? '<button class="btn-watchlist added" disabled>✓ In Watchlist</button>'
-                : '<button class="btn-watchlist" data-movie-id="' + movie.id + '">Add to Watchlist</button>'
+            ${inWatchlist 
+              ? '<button class="btn-watchlist added" disabled>✓ In Watchlist</button>'
+              : '<button class="btn-watchlist" data-movie-id="' + movie.id + '">Add to Watchlist</button>'
             }
-            
-            ${!isWatched
-              ? '<button class="btn-watched" data-movie-id="' + movie.id + '">Mark as Watched</button>'
-              : ''
+            ${isWatched
+              ? '<button class="btn-watched-browse added" disabled>✓ Watched</button>'
+              : '<button class="btn-watched-browse" data-movie-id="' + movie.id + '">Mark as Watched</button>'
             }
           </div>
         </div>
@@ -174,15 +148,11 @@ function displayMovies(
     `;
   }).join('');
 
-  attachWatchlistHandlers(container, movies, watchlist);
-  attachWatchedHandlers(container, movies, watchlist);
+  attachWatchlistHandlers(container, movies);
+  attachWatchedHandlers(container, movies);
 }
 
-function attachWatchlistHandlers(
-  container: HTMLElement, 
-  movies: TMDBMovie[],
-  watchlist: DatabaseMovie[]
-) {
+function attachWatchlistHandlers(container: HTMLElement, movies: TMDBMovie[]) {
   const buttons = container.querySelectorAll('.btn-watchlist:not(.added)');
   
   buttons.forEach(button => {
@@ -199,73 +169,67 @@ function attachWatchlistHandlers(
       try {
         await addToWatchlist(movie);
         
-        showNotification(`${movie.title} added to watchlist!`);
+        btn.textContent = '✓ In Watchlist';
+        btn.classList.add('added');
         
-        // ⭐ FIX: Use scroll-preserving reload
-        await reloadMoviesPreserveScroll(container);
+        showNotification(`${movie.title} added to watchlist!`);
         
       } catch (error) {
         console.error('Failed to add movie:', error);
-        const errorMessage = (error as Error).message;
+        btn.textContent = 'Failed!';
+        btn.classList.add('error');
+        showNotification('Failed to add movie. Try again.', 'error');
         
-        if (errorMessage.includes('already exists')) {
-          showNotification(`${movie.title} is already in your watchlist`);
-          await reloadMoviesPreserveScroll(container);
-        } else {
-          btn.textContent = 'Failed!';
-          btn.classList.add('error');
-          showNotification('Failed to add movie. Try again.', 'error');
-          
-          setTimeout(() => {
-            btn.textContent = 'Add to Watchlist';
-            btn.disabled = false;
-            btn.classList.remove('error');
-          }, 2000);
-        }
+        setTimeout(() => {
+          btn.textContent = 'Add to Watchlist';
+          btn.disabled = false;
+          btn.classList.remove('error');
+        }, 2000);
       }
     });
   });
 }
 
-function attachWatchedHandlers(
-  container: HTMLElement, 
-  movies: TMDBMovie[],
-  watchlist: DatabaseMovie[]
-) {
-  const buttons = container.querySelectorAll('.btn-watched');
+// ⭐ UPDATED: Hantera "Mark as Watched"-knappar i browse
+function attachWatchedHandlers(container: HTMLElement, movies: TMDBMovie[]) {
+  const watchedButtons = container.querySelectorAll('.btn-watched-browse:not(.added)');
   
-  buttons.forEach(button => {
+  watchedButtons.forEach(button => {
     button.addEventListener('click', (e) => {
       const btn = e.target as HTMLButtonElement;
       const movieId = parseInt(btn.dataset.movieId || '0');
       
-      // Check if movie exists in watchlist first
-      const watchlistMovie = watchlist.find(m => m.tmdb_id === movieId);
+      const movie = movies.find(m => m.id === movieId);
+      if (!movie) return;
       
-      if (watchlistMovie) {
-        // Movie is in watchlist - pass DatabaseMovie to modal
-        console.log('Opening modal for watchlist movie:', watchlistMovie.id);
-        const modal = createWatchedModal(watchlistMovie, async () => {
-          // ⭐ FIX: Use scroll-preserving reload
-          await reloadMoviesPreserveScroll(container);
-        });
-        
-        document.body.appendChild(modal);
-        setTimeout(() => modal.classList.add('show'), 10);
-      } else {
-        // Movie not in watchlist - pass TMDBMovie to modal
-        const movie = movies.find(m => m.id === movieId);
-        if (!movie) return;
-        
-        console.log('Opening modal for TMDB movie:', movie.id);
-        const modal = createWatchedModal(movie, async () => {
-          // ⭐ FIX: Use scroll-preserving reload
-          await reloadMoviesPreserveScroll(container);
-        });
-        
-        document.body.appendChild(modal);
-        setTimeout(() => modal.classList.add('show'), 10);
-      }
+      btn.disabled = true;
+      btn.textContent = 'Opening...';
+      
+      const modal = createWatchedModal(movie, () => {
+        // ⭐ Just update the button, don't reload
+        btn.textContent = '✓ Watched';
+        btn.classList.add('added');
+        showNotification(`${movie.title} marked as watched!`);
+      });
+      
+      document.body.appendChild(modal);
+      setTimeout(() => modal.classList.add('show'), 10);
+      
+      const closeBtn = modal.querySelector('.modal-close') as HTMLButtonElement;
+      const cancelBtn = modal.querySelector('.modal-cancel') as HTMLButtonElement;
+      
+      const reEnableButton = () => {
+        btn.disabled = false;
+        btn.textContent = 'Mark as Watched';
+      };
+      
+      closeBtn?.addEventListener('click', reEnableButton, { once: true });
+      cancelBtn?.addEventListener('click', reEnableButton, { once: true });
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          reEnableButton();
+        }
+      }, { once: true });
     });
   });
 }

@@ -23,7 +23,8 @@ const initDatabase = (): void => {
       release_date TEXT,
       vote_average REAL,
       overview TEXT,
-      status TEXT NOT NULL CHECK(status IN ('watchlist', 'watched')),
+      in_watchlist INTEGER DEFAULT 1,
+      is_watched INTEGER DEFAULT 0,
       personal_rating INTEGER CHECK(personal_rating BETWEEN 1 AND 5),
       review TEXT,
       is_favorite INTEGER DEFAULT 0,
@@ -41,5 +42,3 @@ const initDatabase = (): void => {
 initDatabase();
 
 export default db;
-
-
