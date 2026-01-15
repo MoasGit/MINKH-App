@@ -1,7 +1,8 @@
 // src/views/watchlist/index.ts
 import { getWatchlist, removeFromWatchlist } from '../../services/movieApi';
-import { TMDB_IMAGE_BASE_URL } from '../../services/tmdbApi';
+import { fetchMovieDetails, TMDB_IMAGE_BASE_URL } from '../../services/tmdbApi';
 import { createWatchedModal } from '../../components/watchedModal';
+import { createMovieDetailsModal } from '../../components/movieDetailsModal';
 import type { DatabaseMovie } from '../../types/movie';
 
 export default function watchList(): HTMLElement {
@@ -56,11 +57,16 @@ function displayWatchlist(
     return `
       <div class="movie-card ${isWatched ? 'watched' : ''}" data-movie-id="${movie.id}">
         ${isWatched ? '<div class="watched-badge">✓ Watched</div>' : ''}
-        <img 
-          src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
-          alt="${movie.title}"
-          onerror="this.src='/placeholder.jpg'"
-        />
+        <div class="movie-poster-wrapper" data-movie-id="${movie.id}" data-tmdb-id="${movie.tmdb_id}">
+          <img 
+            src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
+            alt="${movie.title}"
+            onerror="this.src='/placeholder.jpg'"
+          />
+          <div class="poster-overlay">
+            <span class="view-details">👁️ View Details</span>
+          </div>
+        </div>
         <div class="movie-info">
           <h3>${movie.title}</h3>
           <div class="movie-meta">
@@ -90,7 +96,9 @@ function displayWatchlist(
     `;
   }).join('');
 
-  // Attach handlers
+  // ⭐ NEW: Attach details handlers
+  attachDetailsHandlers(container, movies);
+  
   if (movies.some(m => m.is_watched === 0)) {
     attachWatchedHandlers(container, movies);
   }
@@ -103,54 +111,89 @@ function renderStarsSmall(rating: number): string {
   ).join('');
 }
 
-// ⭐ UPDATED: Hantera "Mark as Watched"-knappar
+// ⭐ NEW: Handle clicks to open movie details modal
+function attachDetailsHandlers(container: HTMLElement, movies: DatabaseMovie[]) {
+  const posterWrappers = container.querySelectorAll('.movie-poster-wrapper');
+  
+  posterWrappers.forEach(wrapper => {
+    wrapper.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      
+      const tmdbId = parseInt((wrapper as HTMLElement).dataset.tmdbId || '0');
+      const movie = movies.find(m => m.tmdb_id === tmdbId);
+      if (!movie) return;
+      
+      const overlay = wrapper.querySelector('.poster-overlay') as HTMLElement;
+      if (overlay) {
+        overlay.innerHTML = '<span class="view-details">Loading...</span>';
+      }
+      
+      try {
+        const movieDetails = await fetchMovieDetails(movie.tmdb_id);
+        
+        const modal = createMovieDetailsModal(movie, movieDetails);
+        document.body.appendChild(modal);
+        
+        setTimeout(() => modal.classList.add('show'), 10);
+        
+      } catch (error) {
+        console.error('Failed to load movie details:', error);
+        showNotification('Failed to load movie details', 'error');
+      } finally {
+        if (overlay) {
+          overlay.innerHTML = '<span class="view-details">👁️ View Details</span>';
+        }
+      }
+    });
+  });
+}
+
 function attachWatchedHandlers(container: HTMLElement, movies: DatabaseMovie[]) {
   const watchedButtons = container.querySelectorAll('.btn-watched');
   
   watchedButtons.forEach(button => {
     button.addEventListener('click', (e) => {
+      e.stopPropagation();
       const btn = e.target as HTMLButtonElement;
       const movieId = parseInt(btn.dataset.movieId || '0');
       
       const movie = movies.find(m => m.id === movieId);
       if (!movie) return;
       
-      // Öppna modal
       const modal = createWatchedModal(movie, (updatedMovie) => {
-        // ⭐ Callback när filmen markerats som watched
-        // Update only the specific movie card
         updateMovieCard(container, updatedMovie);
         showNotification(`${movie.title} marked as watched!`);
       });
       
       document.body.appendChild(modal);
       
-      // Fade in animation
       setTimeout(() => modal.classList.add('show'), 10);
     });
   });
 }
 
-// ⭐ NEW: Update a specific movie card without reloading everything
 function updateMovieCard(container: HTMLElement, movie: DatabaseMovie) {
   const movieCard = container.querySelector(`.movie-card[data-movie-id="${movie.id}"]`);
   if (!movieCard) return;
   
   const isWatched = movie.is_watched === 1;
   
-  // Add watched class
   if (isWatched) {
     movieCard.classList.add('watched');
   }
   
-  // Update the card content
   movieCard.innerHTML = `
     ${isWatched ? '<div class="watched-badge">✓ Watched</div>' : ''}
-    <img 
-      src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
-      alt="${movie.title}"
-      onerror="this.src='/placeholder.jpg'"
-    />
+    <div class="movie-poster-wrapper" data-movie-id="${movie.id}" data-tmdb-id="${movie.tmdb_id}">
+      <img 
+        src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
+        alt="${movie.title}"
+        onerror="this.src='/placeholder.jpg'"
+      />
+      <div class="poster-overlay">
+        <span class="view-details">👁️ View Details</span>
+      </div>
+    </div>
     <div class="movie-info">
       <h3>${movie.title}</h3>
       <div class="movie-meta">
@@ -178,10 +221,37 @@ function updateMovieCard(container: HTMLElement, movie: DatabaseMovie) {
     </div>
   `;
   
-  // Re-attach remove handler for this card
+  // Re-attach handlers for this specific card
+  const posterWrapper = movieCard.querySelector('.movie-poster-wrapper');
+  if (posterWrapper) {
+    posterWrapper.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      
+      const overlay = posterWrapper.querySelector('.poster-overlay') as HTMLElement;
+      if (overlay) {
+        overlay.innerHTML = '<span class="view-details">Loading...</span>';
+      }
+      
+      try {
+        const movieDetails = await fetchMovieDetails(movie.tmdb_id);
+        const modal = createMovieDetailsModal(movie, movieDetails);
+        document.body.appendChild(modal);
+        setTimeout(() => modal.classList.add('show'), 10);
+      } catch (error) {
+        console.error('Failed to load movie details:', error);
+        showNotification('Failed to load movie details', 'error');
+      } finally {
+        if (overlay) {
+          overlay.innerHTML = '<span class="view-details">👁️ View Details</span>';
+        }
+      }
+    });
+  }
+  
   const removeBtn = movieCard.querySelector('.btn-remove');
   if (removeBtn) {
     removeBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
       const btn = e.target as HTMLButtonElement;
       
       if (!confirm(`Remove "${movie.title}" from watchlist?`)) return;
@@ -192,10 +262,8 @@ function updateMovieCard(container: HTMLElement, movie: DatabaseMovie) {
       try {
         await removeFromWatchlist(movie.id);
         showNotification(`${movie.title} removed from watchlist`);
-        // Remove the card from DOM
         movieCard.remove();
         
-        // Check if watchlist is now empty
         const remainingCards = container.querySelectorAll('.movie-card');
         if (remainingCards.length === 0) {
           container.innerHTML = `
@@ -221,6 +289,7 @@ function attachRemoveHandlers(container: HTMLElement, movies: DatabaseMovie[]) {
   
   removeButtons.forEach(button => {
     button.addEventListener('click', async (e) => {
+      e.stopPropagation();
       const btn = e.target as HTMLButtonElement;
       const movieId = parseInt(btn.dataset.movieId || '0');
       
@@ -236,13 +305,11 @@ function attachRemoveHandlers(container: HTMLElement, movies: DatabaseMovie[]) {
         await removeFromWatchlist(movieId);
         showNotification(`${movie.title} removed from watchlist`);
         
-        // Remove the card from DOM
         const movieCard = container.querySelector(`.movie-card[data-movie-id="${movieId}"]`);
         if (movieCard) {
           movieCard.remove();
         }
         
-        // Check if watchlist is now empty
         const remainingCards = container.querySelectorAll('.movie-card');
         if (remainingCards.length === 0) {
           container.innerHTML = `

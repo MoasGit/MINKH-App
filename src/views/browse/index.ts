@@ -1,6 +1,7 @@
-import { fetchTopMovies, fetchMovies, TMDB_IMAGE_BASE_URL } from '../../services/tmdbApi';
+import { fetchTopMovies, fetchMovies, fetchMovieDetails, TMDB_IMAGE_BASE_URL } from '../../services/tmdbApi';
 import { addToWatchlist, getWatchlist, getWatched } from '../../services/movieApi';
 import { createWatchedModal } from '../../components/watchedModal';
+import { createMovieDetailsModal } from '../../components/movieDetailsModal';
 import type { TMDBMovie, DatabaseMovie } from '../../types/movie';
 
 export default function browse(): HTMLElement {
@@ -120,11 +121,16 @@ function displayMovies(
     
     return `
       <div class="movie-card" data-tmdb-id="${movie.id}">
-        <img 
-          src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
-          alt="${movie.title}"
-          onerror="this.src='/placeholder.jpg'"
-        />
+        <div class="movie-poster-wrapper" data-movie-id="${movie.id}">
+          <img 
+            src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
+            alt="${movie.title}"
+            onerror="this.src='/placeholder.jpg'"
+          />
+          <div class="poster-overlay">
+            
+          </div>
+        
         <div class="movie-info">
           <h3>${movie.title}</h3>
           <div class="movie-meta">
@@ -145,11 +151,56 @@ function displayMovies(
           </div>
         </div>
       </div>
+      </div>
     `;
   }).join('');
 
+  // ⭐ NEW: Attach click handlers for movie details
+  attachDetailsHandlers(container, movies);
   attachWatchlistHandlers(container, movies);
   attachWatchedHandlers(container, movies);
+}
+
+// ⭐ NEW: Handle clicks to open movie details modal
+function attachDetailsHandlers(container: HTMLElement, movies: TMDBMovie[]) {
+  const posterWrappers = container.querySelectorAll('.movie-poster-wrapper');
+  
+  posterWrappers.forEach(wrapper => {
+    wrapper.addEventListener('click', async (e) => {
+      e.stopPropagation(); // Prevent event bubbling
+      
+      const movieId = parseInt((wrapper as HTMLElement).dataset.movieId || '0');
+      const movie = movies.find(m => m.id === movieId);
+      if (!movie) return;
+      
+      // Show loading state
+      const overlay = wrapper.querySelector('.poster-overlay') as HTMLElement;
+      if (overlay) {
+        overlay.innerHTML = '';
+      }
+      
+      try {
+        // Fetch full movie details (includes backdrop)
+        const movieDetails = await fetchMovieDetails(movie.id);
+        
+        // Create and show modal
+        const modal = createMovieDetailsModal(movie, movieDetails);
+        document.body.appendChild(modal);
+        
+        // Fade in animation
+        setTimeout(() => modal.classList.add('show'), 10);
+        
+      } catch (error) {
+        console.error('Failed to load movie details:', error);
+        showNotification('Failed to load movie details', 'error');
+      } finally {
+        // Reset overlay
+        if (overlay) {
+          overlay.innerHTML = '';
+        }
+      }
+    });
+  });
 }
 
 function attachWatchlistHandlers(container: HTMLElement, movies: TMDBMovie[]) {
@@ -157,6 +208,7 @@ function attachWatchlistHandlers(container: HTMLElement, movies: TMDBMovie[]) {
   
   buttons.forEach(button => {
     button.addEventListener('click', async (e) => {
+      e.stopPropagation(); // Prevent triggering details modal
       const btn = e.target as HTMLButtonElement;
       const movieId = parseInt(btn.dataset.movieId || '0');
       
@@ -190,12 +242,12 @@ function attachWatchlistHandlers(container: HTMLElement, movies: TMDBMovie[]) {
   });
 }
 
-// ⭐ UPDATED: Hantera "Mark as Watched"-knappar i browse
 function attachWatchedHandlers(container: HTMLElement, movies: TMDBMovie[]) {
   const watchedButtons = container.querySelectorAll('.btn-watched-browse:not(.added)');
   
   watchedButtons.forEach(button => {
     button.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent triggering details modal
       const btn = e.target as HTMLButtonElement;
       const movieId = parseInt(btn.dataset.movieId || '0');
       
@@ -206,7 +258,6 @@ function attachWatchedHandlers(container: HTMLElement, movies: TMDBMovie[]) {
       btn.textContent = 'Opening...';
       
       const modal = createWatchedModal(movie, () => {
-        // ⭐ Just update the button, don't reload
         btn.textContent = '✓ Watched';
         btn.classList.add('added');
         showNotification(`${movie.title} marked as watched!`);
