@@ -21,7 +21,7 @@ const db = new Database(dbPath);
 // Slå på foreign keys
 db.pragma('foreign_keys = ON');
 
-// Skapa tabeller (en databas per projekt, ingen användaruppdelning)
+// Skapa tabeller
 const createMoviesTable = `
   CREATE TABLE IF NOT EXISTS movies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,7 +31,8 @@ const createMoviesTable = `
     release_date TEXT,
     vote_average REAL,
     overview TEXT,
-    status TEXT NOT NULL CHECK(status IN ('watchlist', 'watched')),
+    in_watchlist INTEGER DEFAULT 1,
+    is_watched INTEGER DEFAULT 0,
     personal_rating INTEGER CHECK(personal_rating BETWEEN 1 AND 5),
     review TEXT,
     is_favorite INTEGER DEFAULT 0,
@@ -49,5 +50,3 @@ console.log('✅ Databasåterställning klar!');
 console.log('   Du kan nu starta servern med: npm run dev');
 
 db.close();
-
-

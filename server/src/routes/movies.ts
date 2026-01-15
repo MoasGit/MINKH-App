@@ -3,8 +3,6 @@ import db from '../database.js';
 
 const router = express.Router();
 
-type MovieStatus = 'watchlist' | 'watched';
-
 interface Movie {
   id: number;
   tmdb_id: number;
@@ -13,7 +11,8 @@ interface Movie {
   release_date: string | null;
   vote_average: number | null;
   overview: string | null;
-  status: MovieStatus;
+  in_watchlist: number;
+  is_watched: number;
   personal_rating: number | null;
   review: string | null;
   is_favorite: number;
@@ -28,7 +27,8 @@ interface CreateMovieBody {
   release_date?: string | null;
   vote_average?: number | null;
   overview?: string | null;
-  status: MovieStatus;
+  in_watchlist?: boolean;
+  is_watched?: boolean;
   personal_rating?: number | null;
   review?: string | null;
   is_favorite?: boolean;
@@ -36,7 +36,8 @@ interface CreateMovieBody {
 }
 
 interface UpdateMovieBody {
-  status?: MovieStatus;
+  in_watchlist?: boolean;
+  is_watched?: boolean;
   personal_rating?: number | null;
   review?: string | null;
   is_favorite?: boolean;
@@ -54,19 +55,20 @@ interface StatsResponse {
 /**
  * GET /api/movies
  * Hämta alla filmer
- * Query params: ?status=watchlist|watched
+ * Query params: ?view=watchlist|watched
  */
 router.get('/', (req: Request, res: Response) => {
   try {
-    const { status } = req.query as { status?: MovieStatus };
+    const { view } = req.query as { view?: 'watchlist' | 'watched' };
 
-    let query = 'SELECT * FROM movies';
+    let query = 'SELECT * FROM movies WHERE 1=1';
     const params: unknown[] = [];
 
-    // Filtrera på status om den skickas in
-    if (status) {
-      query += ' WHERE status = ?';
-      params.push(status);
+    // Filtrera på view om den skickas in
+    if (view === 'watchlist') {
+      query += ' AND in_watchlist = 1';
+    } else if (view === 'watched') {
+      query += ' AND is_watched = 1';
     }
 
     query += ' ORDER BY date_added DESC';
@@ -115,7 +117,6 @@ router.get('/:id', (req: Request, res: Response) => {
 /**
  * POST /api/movies
  * Lägg till en ny film (i watchlist eller watched)
- * Body: { tmdb_id, title, poster_path, release_date, vote_average, overview, status, personal_rating?, review?, is_favorite?, date_watched? }
  */
 router.post('/', (req: Request<unknown, unknown, CreateMovieBody>, res: Response) => {
   try {
@@ -126,7 +127,8 @@ router.post('/', (req: Request<unknown, unknown, CreateMovieBody>, res: Response
       release_date,
       vote_average,
       overview,
-      status,
+      in_watchlist = true,
+      is_watched = false,
       personal_rating,
       review,
       is_favorite,
@@ -134,23 +136,16 @@ router.post('/', (req: Request<unknown, unknown, CreateMovieBody>, res: Response
     } = req.body;
 
     // Validering
-    if (!tmdb_id || !title || !status) {
+    if (!tmdb_id || !title) {
       return res.status(400).json({
         error: 'Missing required fields',
-        required: ['tmdb_id', 'title', 'status'],
-        hint: 'Make sure to include tmdb_id, title, and status (watchlist or watched)'
+        required: ['tmdb_id', 'title'],
+        hint: 'Make sure to include tmdb_id and title'
       });
     }
 
-    if (!['watchlist', 'watched'].includes(status)) {
-      return res.status(400).json({
-        error: 'Invalid status',
-        hint: 'Status must be either "watchlist" or "watched"'
-      });
-    }
-
-    // Om status är "watched", validera personal_rating
-    if (status === 'watched' && personal_rating != null) {
+    // Om is_watched är true, validera personal_rating
+    if (is_watched && personal_rating != null) {
       if (personal_rating < 1 || personal_rating > 5) {
         return res.status(400).json({
           error: 'Invalid personal_rating',
@@ -163,9 +158,9 @@ router.post('/', (req: Request<unknown, unknown, CreateMovieBody>, res: Response
     const stmt = db.prepare(`
       INSERT INTO movies (
         tmdb_id, title, poster_path, release_date,
-        vote_average, overview, status, personal_rating,
-        review, is_favorite, date_watched
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        vote_average, overview, in_watchlist, is_watched,
+        personal_rating, review, is_favorite, date_watched
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -175,7 +170,8 @@ router.post('/', (req: Request<unknown, unknown, CreateMovieBody>, res: Response
       release_date || null,
       vote_average || null,
       overview || null,
-      status,
+      in_watchlist ? 1 : 0,
+      is_watched ? 1 : 0,
       personal_rating ?? null,
       review ?? null,
       is_favorite ? 1 : 0,
@@ -193,7 +189,7 @@ router.post('/', (req: Request<unknown, unknown, CreateMovieBody>, res: Response
     if (error instanceof Error && error.message.includes('UNIQUE constraint failed')) {
       return res.status(409).json({
         error: 'Movie already exists',
-        hint: 'This movie is already in your watchlist or watched list. Try updating it instead.'
+        hint: 'This movie is already in your collection. Try updating it instead.'
       });
     }
 
@@ -207,14 +203,14 @@ router.post('/', (req: Request<unknown, unknown, CreateMovieBody>, res: Response
 
 /**
  * PUT /api/movies/:id
- * Uppdatera en film (t.ex. flytta från watchlist till watched, uppdatera betyg/recension)
- * Body: { status?, personal_rating?, review?, is_favorite?, date_watched? }
+ * Uppdatera en film
  */
 router.put('/:id', (req: Request<{ id: string }, unknown, UpdateMovieBody>, res: Response) => {
   try {
     const { id } = req.params;
     const {
-      status,
+      in_watchlist,
+      is_watched,
       personal_rating,
       review,
       is_favorite,
@@ -233,14 +229,6 @@ router.put('/:id', (req: Request<{ id: string }, unknown, UpdateMovieBody>, res:
       });
     }
 
-    // Validera status om den skickas in
-    if (status && !['watchlist', 'watched'].includes(status)) {
-      return res.status(400).json({
-        error: 'Invalid status',
-        hint: 'Status must be either "watchlist" or "watched"'
-      });
-    }
-
     // Validera personal_rating om den skickas in
     if (personal_rating !== undefined && personal_rating !== null) {
       if (personal_rating < 1 || personal_rating > 5) {
@@ -255,9 +243,13 @@ router.put('/:id', (req: Request<{ id: string }, unknown, UpdateMovieBody>, res:
     const updates: string[] = [];
     const params: unknown[] = [];
 
-    if (status !== undefined) {
-      updates.push('status = ?');
-      params.push(status);
+    if (in_watchlist !== undefined) {
+      updates.push('in_watchlist = ?');
+      params.push(in_watchlist ? 1 : 0);
+    }
+    if (is_watched !== undefined) {
+      updates.push('is_watched = ?');
+      params.push(is_watched ? 1 : 0);
     }
     if (personal_rating !== undefined) {
       updates.push('personal_rating = ?');
@@ -359,12 +351,12 @@ router.get('/user/stats', (req: Request, res: Response) => {
 
     // Räkna antal watchlist-filmer
     const watchlistCount = (db
-      .prepare('SELECT COUNT(*) as count FROM movies WHERE status = "watchlist"')
+      .prepare('SELECT COUNT(*) as count FROM movies WHERE in_watchlist = 1')
       .get() as { count: number }).count;
 
     // Räkna antal watched-filmer
     const watchedCount = (db
-      .prepare('SELECT COUNT(*) as count FROM movies WHERE status = "watched"')
+      .prepare('SELECT COUNT(*) as count FROM movies WHERE is_watched = 1')
       .get() as { count: number }).count;
 
     // Räkna antal favoriter
@@ -398,5 +390,3 @@ router.get('/user/stats', (req: Request, res: Response) => {
 });
 
 export default router;
-
-

@@ -1,6 +1,3 @@
-export type MovieStatus = "watchlist" | "watched";
-
-// TMDB-film typ från TMDB API
 export interface TMDBMovie {
     id: number;
     title: string;
@@ -19,7 +16,8 @@ export interface DatabaseMovie {
     release_date: string | null;
     vote_average: number | null;
     overview: string | null;
-    status: MovieStatus;
+    in_watchlist: number;
+    is_watched: number;
     personal_rating: number | null;
     review: string | null;
     is_favorite: number;
@@ -35,7 +33,8 @@ export interface CreateMovieBody {
     release_date: string;
     vote_average: number;
     overview?: string;
-    status: MovieStatus;
+    in_watchlist?: boolean;
+    is_watched?: boolean;
     personal_rating?: number | null;
     review?: string | null;
     is_favorite?: boolean;
