@@ -1,13 +1,23 @@
 // src/components/watchedModal.ts
-import { markAsWatched } from '../services/movieApi';
-import type { DatabaseMovie } from '../types/movie';
+import { markAsWatched, addAsWatched } from '../services/movieApi';
+import type { DatabaseMovie, TMDBMovie } from '../types/movie';
+
+// ⭐ FIXED: Correct type guard - check for tmdb_id field
+function isDatabaseMovie(movie: DatabaseMovie | TMDBMovie): movie is DatabaseMovie {
+  // DatabaseMovie has tmdb_id, TMDBMovie doesn't
+  return 'tmdb_id' in movie;
+}
 
 export function createWatchedModal(
-  movie: DatabaseMovie,
+  movie: DatabaseMovie | TMDBMovie,
   onSuccess: () => void
 ): HTMLElement {
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
+  
+  // Get title and year regardless of movie type
+  const title = movie.title;
+  const year = movie.release_date?.substring(0, 4) || 'N/A';
   
   modal.innerHTML = `
     <div class="modal-content">
@@ -17,11 +27,11 @@ export function createWatchedModal(
       </div>
       
       <div class="modal-body">
-        <h3>${movie.title}</h3>
-        <p class="modal-subtitle">${movie.release_date?.substring(0, 4) || 'N/A'}</p>
+        <h3>${title}</h3>
+        <p class="modal-subtitle">${year}</p>
         
         <div class="form-group">
-          <p>Your Rating *</p>
+          <label for="rating">Your Rating *</label>
           <div class="star-rating" id="rating">
             ${[1, 2, 3, 4, 5].map(n => `
               <span class="star" data-rating="${n}">★</span>
@@ -114,16 +124,33 @@ export function createWatchedModal(
     submitBtn.textContent = 'Saving...';
     
     try {
-      await markAsWatched(movie.id, selectedRating, reviewInput.value.trim() || undefined);
+      const review = reviewInput.value.trim() || undefined;
       
-      // Success!
+      // Check movie type and call appropriate API function
+      if (isDatabaseMovie(movie)) {
+        // Movie from watchlist (has tmdb_id) - update existing entry
+        console.log('Updating existing movie in database:', movie.id);
+        await markAsWatched(movie.id, selectedRating, review);
+      } else {
+        // Movie from TMDB browse (no tmdb_id) - create new entry as watched
+        console.log('Adding new movie directly as watched:', movie.id);
+        await addAsWatched(movie, selectedRating, review);
+      }
+      
       closeModal();
       onSuccess();
-      showNotification(`${movie.title} marked as watched!`);
+      showNotification(`${title} marked as watched!`);
       
     } catch (error) {
       console.error('Failed to mark as watched:', error);
-      alert('Failed to mark as watched. Please try again.');
+      const errorMessage = (error as Error).message;
+      
+      if (errorMessage.includes('already exists')) {
+        alert('This movie is already in your collection.');
+      } else {
+        alert('Failed to mark as watched. Please try again.');
+      }
+      
       submitBtn.disabled = false;
       submitBtn.textContent = 'Mark as Watched';
     }
