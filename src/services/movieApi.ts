@@ -262,6 +262,34 @@ export async function updateWatched(
   }
 }
 
+// ⭐ NEW: Toggle favorite status
+export async function toggleFavorite(
+  movieId: number,
+  isFavorite: boolean
+): Promise<DatabaseMovie> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies/${movieId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        is_favorite: isFavorite
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to toggle favorite');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error toggling favorite:', error);
+    throw error;
+  }
+}
+
 // Ta bort helt från databasen
 export async function deleteMovie(movieId: number): Promise<void> {
   try {
