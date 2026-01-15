@@ -68,8 +68,47 @@ export async function removeFromWatchlist(movieId: number): Promise<void> {
   }
 }
 
+// ⭐ NY FUNKTION: Lägg till film direkt som watched
+export async function addAsWatched(
+  movie: TMDBMovie,
+  rating: number,
+  review?: string
+): Promise<DatabaseMovie> {
+  try {
+    const body: CreateMovieBody = {
+      tmdb_id: movie.id,
+      title: movie.title,
+      poster_path: movie.poster_path,
+      release_date: movie.release_date,
+      vote_average: movie.vote_average,
+      overview: movie.overview,
+      status: 'watched',
+      personal_rating: rating,
+      review: review || null,
+      date_watched: new Date().toISOString().split('T')[0]
+    };
 
-// ⭐ NY FUNKTION: Markera film som watched
+    const response = await fetch(`${API_BASE_URL}/movies`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to add movie as watched');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding as watched:', error);
+    throw error;
+  }
+}
+
+// Markera film som watched
 export async function markAsWatched(
   movieId: number,
   rating: number,
@@ -85,7 +124,7 @@ export async function markAsWatched(
         status: 'watched',
         personal_rating: rating,
         review: review || null,
-        date_watched: new Date().toISOString().split('T')[0] // YYYY-MM-DD
+        date_watched: new Date().toISOString().split('T')[0]
       })
     });
 
@@ -101,7 +140,7 @@ export async function markAsWatched(
   }
 }
 
-// ⭐ NY FUNKTION: Hämta watched movies
+// Hämta watched movies
 export async function getWatched(): Promise<DatabaseMovie[]> {
   try {
     const response = await fetch(`${API_BASE_URL}/movies?status=watched`);
@@ -117,11 +156,7 @@ export async function getWatched(): Promise<DatabaseMovie[]> {
   }
 }
 
-// src/services/movieApi.ts
-
-// ... dina andra funktioner ...
-
-// ⭐ NY FUNKTION: Uppdatera watched movie (rating/review)
+// Uppdatera watched movie (rating/review)
 export async function updateWatched(
   movieId: number,
   rating: number,
@@ -151,7 +186,7 @@ export async function updateWatched(
   }
 }
 
-// ⭐ NY FUNKTION: Ta bort från watched (eller helt från databasen)
+// Ta bort från watched (eller helt från databasen)
 export async function deleteMovie(movieId: number): Promise<void> {
   try {
     const response = await fetch(`${API_BASE_URL}/movies/${movieId}`, {
