@@ -7,6 +7,20 @@ export interface TMDBMovie {
     vote_average: number;
 }
 
+// ⭐ NEW: Extended movie details from TMDB API
+export interface TMDBMovieDetails extends TMDBMovie {
+    backdrop_path: string | null;
+    runtime: number | null;
+    genres: Array<{
+        id: number;
+        name: string;
+    }>;
+    tagline?: string;
+    budget?: number;
+    revenue?: number;
+    status?: string;
+}
+
 // Film från din databas (sparade filmer med watchlist eller watched status)
 export interface DatabaseMovie {
     id: number; // Databas-id

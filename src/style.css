@@ -2,4 +2,5 @@
 @import "./views/static/header/style.css";
 @import "./views/static/footer/style.css";
 @import "./components/watchedModal.css";
+@import "./components/movieDetailsModal.css";
 @import "./views/watched/style.css";

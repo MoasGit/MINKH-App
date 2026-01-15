@@ -1,5 +1,5 @@
 // Konfiguration
-import type { TMDBMovie } from '../types/movie';
+import type { TMDBMovie, TMDBMovieDetails } from '../types/movie';
 
 const TMDB_API_KEY = '346ed5019388cb359ec595d99dc7de90';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
@@ -18,9 +18,6 @@ export async function fetchTopMovies(): Promise<TMDBMovie[]> {
   const data = await response.json();
   console.log(data);
   
-  /* const firstMovie = data.results[0];
-console.log('First movie ID:', firstMovie.title); */
-
   return data.results;
 }
 
@@ -36,4 +33,18 @@ export async function fetchMovies(query: string): Promise<TMDBMovie[]> {
   
   const data = await response.json();
   return data.results;
+}
+
+// ⭐ NEW: Hämta fullständig filminformation (inkl. backdrop, runtime, genres)
+export async function fetchMovieDetails(tmdbId: number): Promise<TMDBMovieDetails> {
+  const response = await fetch(
+    `${TMDB_BASE_URL}/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`
+  );
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch movie details');
+  }
+  
+  const data = await response.json();
+  return data;
 }

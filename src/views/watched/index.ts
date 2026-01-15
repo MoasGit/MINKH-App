@@ -1,7 +1,8 @@
 // src/views/watched/index.ts
 import { getWatched, deleteMovie, toggleFavorite } from '../../services/movieApi';
-import { TMDB_IMAGE_BASE_URL } from '../../services/tmdbApi';
+import { fetchMovieDetails, TMDB_IMAGE_BASE_URL } from '../../services/tmdbApi';
 import { createEditWatchedModal } from '../../components/editWatchedModal';
+import { createMovieDetailsModal } from '../../components/movieDetailsModal';
 import type { DatabaseMovie } from '../../types/movie';
 
 type FilterType = 'all' | 'favorites' | 'highest-rated';
@@ -30,23 +31,19 @@ export default function watched(): HTMLElement {
   let allMovies: DatabaseMovie[] = [];
   let currentFilter: FilterType = 'all';
 
-  // Load initial movies
   loadWatched(moviesContainer).then(movies => {
     allMovies = movies;
   });
 
-  // Filter button handlers
   const filterButtons = header.querySelectorAll('.filter-btn');
   filterButtons.forEach(button => {
     button.addEventListener('click', (e) => {
       const btn = e.target as HTMLButtonElement;
       const filter = btn.dataset.filter as FilterType;
       
-      // Update active state
       filterButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       
-      // Apply filter
       currentFilter = filter;
       const filteredMovies = applyFilter(allMovies, filter);
       displayWatched(filteredMovies, moviesContainer, allMovies);
@@ -110,11 +107,16 @@ function displayWatched(
                 title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
           ${isFavorite ? '★' : '☆'}
         </button>
-        <img 
-          src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
-          alt="${movie.title}"
-          onerror="this.src='/placeholder.jpg'"
-        />
+        <div class="movie-poster-wrapper" data-movie-id="${movie.id}" data-tmdb-id="${movie.tmdb_id}">
+          <img 
+            src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : '/placeholder.jpg'}" 
+            alt="${movie.title}"
+            onerror="this.src='/placeholder.jpg'"
+          />
+          <div class="poster-overlay">
+            <span class="view-details">👁️ View Details</span>
+          </div>
+        </div>
         <div class="movie-info">
           <h3>${movie.title}</h3>
           <div class="movie-meta">
@@ -149,7 +151,8 @@ function displayWatched(
     `;
   }).join('');
 
-  // Attach handlers
+  // ⭐ NEW: Attach details handlers
+  attachDetailsHandlers(container, allMovies);
   attachFavoriteHandlers(container, allMovies);
   attachEditHandlers(container, allMovies);
   attachRemoveHandlers(container, allMovies);
@@ -163,12 +166,49 @@ function renderStars(rating: number): string {
   ).join('');
 }
 
-// ⭐ NEW: Handle favorite toggle buttons
+// ⭐ NEW: Handle clicks to open movie details modal
+function attachDetailsHandlers(container: HTMLElement, allMovies: DatabaseMovie[]) {
+  const posterWrappers = container.querySelectorAll('.movie-poster-wrapper');
+  
+  posterWrappers.forEach(wrapper => {
+    wrapper.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      
+      const tmdbId = parseInt((wrapper as HTMLElement).dataset.tmdbId || '0');
+      const movie = allMovies.find(m => m.tmdb_id === tmdbId);
+      if (!movie) return;
+      
+      const overlay = wrapper.querySelector('.poster-overlay') as HTMLElement;
+      if (overlay) {
+        overlay.innerHTML = '<span class="view-details">Loading...</span>';
+      }
+      
+      try {
+        const movieDetails = await fetchMovieDetails(movie.tmdb_id);
+        
+        const modal = createMovieDetailsModal(movie, movieDetails);
+        document.body.appendChild(modal);
+        
+        setTimeout(() => modal.classList.add('show'), 10);
+        
+      } catch (error) {
+        console.error('Failed to load movie details:', error);
+        showNotification('Failed to load movie details', 'error');
+      } finally {
+        if (overlay) {
+          overlay.innerHTML = '<span class="view-details">👁️ View Details</span>';
+        }
+      }
+    });
+  });
+}
+
 function attachFavoriteHandlers(container: HTMLElement, allMovies: DatabaseMovie[]) {
   const favoriteButtons = container.querySelectorAll('.favorite-btn');
   
   favoriteButtons.forEach(button => {
     button.addEventListener('click', async (e) => {
+      e.stopPropagation();
       const btn = e.target as HTMLButtonElement;
       const movieId = parseInt(btn.dataset.movieId || '0');
       
@@ -178,7 +218,6 @@ function attachFavoriteHandlers(container: HTMLElement, allMovies: DatabaseMovie
       const isFavorite = movie.is_favorite === 1;
       const newFavoriteState = !isFavorite;
       
-      // Optimistic UI update
       btn.classList.toggle('active');
       btn.textContent = newFavoriteState ? '★' : '☆';
       btn.title = newFavoriteState ? 'Remove from favorites' : 'Add to favorites';
@@ -187,7 +226,6 @@ function attachFavoriteHandlers(container: HTMLElement, allMovies: DatabaseMovie
       try {
         const updatedMovie = await toggleFavorite(movieId, newFavoriteState);
         
-        // Update the movie in our local array
         const index = allMovies.findIndex(m => m.id === movieId);
         if (index !== -1) {
           allMovies[index] = updatedMovie;
@@ -202,7 +240,6 @@ function attachFavoriteHandlers(container: HTMLElement, allMovies: DatabaseMovie
       } catch (error) {
         console.error('Failed to toggle favorite:', error);
         
-        // Revert UI on error
         btn.classList.toggle('active');
         btn.textContent = isFavorite ? '★' : '☆';
         btn.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
@@ -220,6 +257,7 @@ function attachEditHandlers(container: HTMLElement, allMovies: DatabaseMovie[]) 
   
   editButtons.forEach(button => {
     button.addEventListener('click', (e) => {
+      e.stopPropagation();
       const btn = e.target as HTMLButtonElement;
       const movieId = parseInt(btn.dataset.movieId || '0');
       
@@ -227,9 +265,7 @@ function attachEditHandlers(container: HTMLElement, allMovies: DatabaseMovie[]) 
       if (!movie) return;
       
       const modal = createEditWatchedModal(movie, () => {
-        // Reload the watched list after edit
         loadWatched(container).then(movies => {
-          // Update our local movies array
           allMovies.length = 0;
           allMovies.push(...movies);
         });
@@ -246,6 +282,7 @@ function attachRemoveHandlers(container: HTMLElement, allMovies: DatabaseMovie[]
   
   removeButtons.forEach(button => {
     button.addEventListener('click', async (e) => {
+      e.stopPropagation();
       const btn = e.target as HTMLButtonElement;
       const movieId = parseInt(btn.dataset.movieId || '0');
       
@@ -264,13 +301,11 @@ function attachRemoveHandlers(container: HTMLElement, allMovies: DatabaseMovie[]
         
         showNotification(`${movie.title} removed from watched`);
         
-        // Remove from our local array
         const index = allMovies.findIndex(m => m.id === movieId);
         if (index !== -1) {
           allMovies.splice(index, 1);
         }
         
-        // Reload display
         loadWatched(container).then(movies => {
           allMovies.length = 0;
           allMovies.push(...movies);
