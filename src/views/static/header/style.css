@@ -50,3 +50,15 @@ nav ul li:hover {
   background-color: var(--color-light);
   color: var(--color-graphite);
 }
+
+/* Active state styling */
+nav ul li.active {
+  background-color: var(--color-teal);
+  border-color: var(--color-teal);
+  color: var(--color-light);
+}
+
+nav ul li.active:hover {
+  background-color: var(--color-turquoise);
+  border-color: var(--color-turquoise);
+}
