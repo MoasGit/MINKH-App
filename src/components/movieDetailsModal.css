@@ -95,6 +95,8 @@
   display: flex;
   gap: 2rem;
   padding: 2rem;
+  background-color: var(--color-graphite);
+  color: var(--color-light);
 }
 
 .poster-section {
@@ -116,7 +118,7 @@
 .details-title {
   margin: 0 0 1rem 0;
   font-size: 2rem;
-  color: #222;
+
   line-height: 1.2;
 }
 
@@ -136,12 +138,11 @@
 
 .meta-label {
   font-weight: 600;
-  color: #666;
   font-size: 0.95rem;
+  color: var(--color-green);
 }
 
 .meta-value {
-  color: #333;
   font-size: 1rem;
 }
 
@@ -158,7 +159,6 @@
 
 /* Personal Info */
 .personal-info {
-  background: #f8f9fa;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -168,42 +168,23 @@
 }
 
 .stars-inline {
-  font-size: 1.5rem;
-  color: #ffd700;
+  font-size: 20px;
+  color: var(--color-green);
   letter-spacing: 0.2rem;
 }
 
 /* Status Badges */
-.status-badges {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
 
-.status-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.status-badge.watchlist {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.status-badge.watched {
-  background: #e8f5e9;
-  color: #388e3c;
+.status-badges span {
+  padding: 10px;
+  border-radius: 10px;
+  background-color: var(--color-teal);
+  margin-right: 10px;
 }
 
 .status-badge.favorite {
-  background: #fff3e0;
-  color: #f57c00;
+  background: var(--color-green);
+  color: var(--color-graphite);
 }
 
 /* Overview */
@@ -214,13 +195,11 @@
 .overview-section h3 {
   margin: 0 0 0.75rem 0;
   font-size: 1.3rem;
-  color: #333;
 }
 
 .overview-section p {
   margin: 0;
   line-height: 1.6;
-  color: #555;
   font-size: 1rem;
 }
 
@@ -249,30 +228,30 @@
     flex-direction: column;
     padding: 1.5rem;
   }
-  
+
   .poster-section {
     display: flex;
     justify-content: center;
   }
-  
+
   .details-poster {
     width: 200px;
   }
-  
+
   .details-title {
     font-size: 1.5rem;
     text-align: center;
   }
-  
+
   .meta-row {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .meta-item {
     justify-content: space-between;
   }
-  
+
   .modal-close {
     width: 35px;
     height: 35px;
@@ -285,19 +264,19 @@
     width: 95%;
     margin: 1rem;
   }
-  
+
   .details-poster {
     width: 150px;
   }
-  
+
   .modal-content-details {
     padding: 1rem;
   }
-  
+
   .details-title {
     font-size: 1.3rem;
   }
-  
+
   .status-badges {
     justify-content: center;
   }

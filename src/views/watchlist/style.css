@@ -1,0 +1,66 @@
+.watchlist {
+  background-color: var(--color-teal);
+}
+
+.watchlist-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--color-light);
+  /* border: 1px solid var(--color-light); */
+}
+
+button.btn-remove {
+  border: 1px solid var(--color-red);
+  color: var(--color-light);
+}
+
+button.btn-remove:hover {
+  background-color: var(--color-red);
+  color: var(--color-graphite);
+}
+
+button.btn-watchlist {
+  border: 1px solid var(--color-turquoise);
+  color: var(--color-light);
+}
+
+button.btn-watchlist:hover {
+  background-color: var(--color-turquoise);
+  color: var(--color-graphite);
+}
+
+button.btn-watched-browse {
+  border: 1px solid var(--color-green);
+  color: var(--color-light);
+}
+
+button.btn-watched-browse:hover {
+  background-color: var(--color-green);
+  color: var(--color-graphite);
+}
+
+button.btn-watchlist:disabled {
+  background-color: var(--color-turquoise);
+  color: var(--color-graphite);
+  cursor: not-allowed;
+}
+
+button.btn-watched-browse:disabled {
+  background-color: var(--color-green);
+  color: var(--color-graphite);
+  cursor: not-allowed;
+}
+
+.no-results {
+  font-size: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-graphite);
+  border-radius: 10px;
+  padding: 30px;
+  color: var(--color-light);
+}

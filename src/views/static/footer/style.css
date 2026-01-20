@@ -1,6 +1,8 @@
 footer {
-  background-color: var(--color-primary);
-  color: var(--color-text-inverse);
+  background-color: var(--color-graphite);
+  color: var(--color-light);
   padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
