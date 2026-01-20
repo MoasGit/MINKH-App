@@ -4,3 +4,5 @@
 @import "./components/watchedModal.css";
 @import "./components/movieDetailsModal.css";
 @import "./views/watched/style.css";
+@import "./views/browse/style.css";
+@import "./views/watchlist/style.css";
