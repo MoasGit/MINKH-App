@@ -170,3 +170,21 @@ button.btn-watched-browse:disabled {
   padding: 30px;
   color: var(--color-light);
 }
+
+.load-more-button {
+  background-color: var(--color-graphite);
+  color: var(--color-light);
+  border: 1px solid var(--color-graphite);
+  border-radius: 10px;
+  padding: 15px 30px;
+  font-size: 15px;
+  cursor: pointer;
+  margin: 20px auto;
+  display: block;
+  transition: all 0.2s ease-in-out;
+}
+
+.load-more-button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
