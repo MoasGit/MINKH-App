@@ -26,7 +26,7 @@ export function createMovieDetailsModal(
   const overview = movie.overview || "No description available.";
   const posterPath = movie.poster_path
     ? TMDB_IMAGE_BASE_URL + movie.poster_path
-    : "/placeholder.jpg";
+    : "/placeholder.png";
 
   // Use backdrop from detailed movie data
   const backdropPath = movieDetails.backdrop_path
@@ -67,7 +67,7 @@ export function createMovieDetailsModal(
             src="${posterPath}" 
             alt="${title}"
             class="details-poster"
-            onerror="this.src='/placeholder.jpg'"
+            onerror="this.src='/placeholder.png'"
           />
         </div>
         

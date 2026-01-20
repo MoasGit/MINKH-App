@@ -140,9 +140,9 @@ function displayWatched(
         </button>
         <div class="movie-poster-wrapper" data-movie-id="${movie.id}" data-tmdb-id="${movie.tmdb_id}">
           <img 
-            src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : "/placeholder.jpg"}" 
+            src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : "/placeholder.png"}" 
             alt="${movie.title}"
-            onerror="this.src='/placeholder.jpg'"
+            onerror="this.src='/placeholder.png'"
           />
           <div class="poster-overlay">
             

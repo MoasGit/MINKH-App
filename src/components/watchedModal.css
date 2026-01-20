@@ -14,6 +14,16 @@
   transition: opacity 0.3s ease;
 }
 
+button.btn-primary.modal-submit {
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: var(--color-green);
+    transition: all .2s ease-in-out;
+}
+
 .modal-overlay.show {
   opacity: 1;
 }
@@ -24,8 +34,9 @@
 
 /* Modal Content */
 .modal-content {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-graphite);
+  border-radius: 10px;
+  color: var(--color-light);
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
@@ -85,7 +96,7 @@
 }
 
 .modal-subtitle {
-  color: #666;
+  color: var(--color-green);
   margin: 0 0 1.5rem 0;
 }
 
@@ -98,7 +109,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-green);
 }
 
 .form-group textarea {
@@ -134,13 +145,13 @@
 
 .star:hover,
 .star.active {
-  color: #ffd700;
+  color: var(--color-green);
   transform: scale(1.1);
 }
 
 .rating-text {
   margin: 0;
-  color: #666;
+  color: var(--color-green);
   font-size: 0.9rem;
 }
 

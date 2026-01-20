@@ -188,3 +188,85 @@ button.btn-watched-browse:disabled {
   transform: scale(1.02);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+@media (max-width: 1024px) {
+  .movie-card {
+    width: 49%;
+  }
+}
+
+@media (max-width: 768px) { 
+  .movie-card {
+    width: 32%;
+  }
+
+  .movie-poster-wrapper {
+    flex-direction: column;
+  }
+
+  .movie-poster-wrapper img {
+    width: 100%
+  }
+
+  .movie-info {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .date-added {
+    top: 5px;
+    font-size: 10px;
+    
+}
+
+.movies-grid {
+  flex-wrap: stretch;
+}
+
+  .movie-poster-wrapper img {
+    width: 100%;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 10px;
+}
+
+  span.rating {
+    margin: 10px 0;
+  }
+
+  .movies-grid {
+    align-items: stretch;
+  }
+
+  .watched-movie-card {
+    width: 100% !important;
+}
+
+.watched-movie-card .movie-poster-wrapper {
+    flex-direction: row;
+}
+}
+
+@media (max-width: 576px) {
+  .movie-card {
+        width: 49%;
+    }
+
+    .movies-grid {
+      width: 95%;
+    }
+
+    .search-box input {
+      width: 90%;
+    }
+
+    .search-section h2 {
+      font-size: 40px;
+      color: var(--color-light);
+      margin-bottom: 20px;
+      margin-top: 0;
+    }
+
+    header img {
+    width: 100px;
+    }
+ }

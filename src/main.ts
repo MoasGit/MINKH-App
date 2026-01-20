@@ -30,6 +30,23 @@ const currentPage = (): string | HTMLElement => {
 
 const app = document.querySelector("#app")!;
 
+// ⭐ NEW: Function to update active navigation state
+const updateActiveNav = () => {
+  const currentPath = window.location.pathname;
+  const navLinks = document.querySelectorAll('nav ul li a');
+  
+  navLinks.forEach(link => {
+    const linkPath = new URL((link as HTMLAnchorElement).href).pathname;
+    const parentLi = link.parentElement;
+    
+    if (linkPath === currentPath) {
+      parentLi?.classList.add('active');
+    } else {
+      parentLi?.classList.remove('active');
+    }
+  });
+};
+
 // Funktionen som renderar sidan
 const renderApp = () => {
 
@@ -54,6 +71,8 @@ const renderApp = () => {
 
   }
 
+  // ⭐ NEW: Update active nav after rendering
+  updateActiveNav();
 
 };
 

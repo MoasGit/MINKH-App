@@ -76,9 +76,9 @@ function displayWatchlist(
         ${isWatched ? "" : ""}
         <div class="movie-poster-wrapper" data-movie-id="${movie.id}" data-tmdb-id="${movie.tmdb_id}">
           <img 
-            src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : "/placeholder.jpg"}" 
+            src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : "/placeholder.png"}" 
             alt="${movie.title}"
-            onerror="this.src='/placeholder.jpg'"
+            onerror="this.src='/placeholder.png'"
           />
           <div class="poster-overlay">
             
@@ -218,9 +218,9 @@ function updateMovieCard(container: HTMLElement, movie: DatabaseMovie) {
     ${isWatched ? '<div class="watched-badge">✓ Watched</div>' : ""}
     <div class="movie-poster-wrapper" data-movie-id="${movie.id}" data-tmdb-id="${movie.tmdb_id}">
       <img 
-        src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : "/placeholder.jpg"}" 
+        src="${movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : "/placeholder.png"}" 
         alt="${movie.title}"
-        onerror="this.src='/placeholder.jpg'"
+        onerror="this.src='/placeholder.png'"
       />
       <div class="poster-overlay">
         
