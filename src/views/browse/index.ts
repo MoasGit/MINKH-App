@@ -13,6 +13,8 @@ import { createWatchedModal } from "../../components/watchedModal";
 import { createMovieDetailsModal } from "../../components/movieDetailsModal";
 import type { TMDBMovie, DatabaseMovie } from "../../types/movie";
 
+let visibleMovieCount = 12;
+
 export default function browse(): HTMLElement {
   const container = document.createElement("div");
   container.className = "browse";
@@ -73,6 +75,7 @@ export default function browse(): HTMLElement {
 }
 
 async function loadMovies(container: HTMLElement) {
+  visibleMovieCount = 12;
   try {
     container.innerHTML = '<p class="loading">Loading movies...</p>';
 
@@ -91,6 +94,7 @@ async function loadMovies(container: HTMLElement) {
 }
 
 async function searchMovies(query: string, container: HTMLElement) {
+  visibleMovieCount = 12;
   try {
     container.innerHTML = '<p class="loading">Searching...</p>';
 
@@ -134,9 +138,17 @@ function displayMovies(
   const watchlistIds = new Set(watchlist.map((m) => m.tmdb_id));
   const watchedIds = new Set(watched.map((m) => m.tmdb_id));
 
-  //const titleHTML = title ? `<h3 class="results-title">${title}</h3>` : "";
+  // ⭐ NYTT: Ta bara de filmer som ska visas
+  const moviesToShow = movies.slice(0, visibleMovieCount);
+  
+  // ⭐ NYTT: Kolla om det finns fler filmer
+  const hasMore = visibleMovieCount < movies.length;
+  
+  // ⭐ NYTT: Räkna kvarvarande filmer
+  const remaining = movies.length - visibleMovieCount;
 
-  container.innerHTML = movies
+  // ÄNDRA: Använd moviesToShow istället för movies
+  container.innerHTML = moviesToShow
     .map((movie) => {
       const inWatchlist = watchlistIds.has(movie.id);
       const isWatched = watchedIds.has(movie.id);
@@ -185,10 +197,36 @@ function displayMovies(
     })
     .join("");
 
+  if (hasMore) {
+    const loadMoreBtn = document.createElement("div");
+    loadMoreBtn.className = "load-more-container";
+    loadMoreBtn.innerHTML = `
+      <button id="load-more-btn" class="load-more-button">
+        Load more (${remaining})
+      </button>
+    `;
+    container.appendChild(loadMoreBtn);
+
+const btn = loadMoreBtn.querySelector("#load-more-btn");
+    btn?.addEventListener("click", () => {
+      // Öka antalet synliga filmer
+      visibleMovieCount += 12;
+      
+      // Begränsa om nödvändigt
+      if (visibleMovieCount > movies.length) {
+        visibleMovieCount = movies.length;
+      }
+      
+      // Rita om med fler filmer
+      displayMovies(movies, container, title, watchlist, watched);
+    });
+  }
+ 
+
   // ⭐ NEW: Attach click handlers for movie details
-  attachDetailsHandlers(container, movies);
-  attachWatchlistHandlers(container, movies);
-  attachWatchedHandlers(container, movies);
+  attachDetailsHandlers(container, moviesToShow);
+  attachWatchlistHandlers(container, moviesToShow);
+  attachWatchedHandlers(container, moviesToShow);
 }
 
 // ⭐ NEW: Handle clicks to open movie details modal
