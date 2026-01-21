@@ -1,6 +1,6 @@
 import type { TMDBMovie } from "../types/movie";
 //import { getPopularMoviesTMDB  } from "../services/tmdbApi.ts";
-import type { fetchTopMovies } from "../services/tmdbApi";
+//import type { fetchTopMovies } from "../services/tmdbApi";
 
 class Store {
   renderCallback: () => void;
