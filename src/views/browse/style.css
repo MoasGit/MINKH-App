@@ -2,6 +2,18 @@
   background-color: var(--color-teal);
 }
 
+.notification.success.show {
+  position: fixed;
+  bottom: 10%;
+  right: 10%;
+  
+  background-color: var(--color-green);
+  color: var(--color-graphite);
+  padding: 10px;
+  border-radius: 10px;
+  transition: all .2s ease-in-out;
+}
+
 .search-section h2 {
   font-size: 50px;
   color: var(--color-light);
@@ -235,6 +247,14 @@ button.btn-watched-browse:disabled {
     width: 32%;
   }
 
+      .date-added {
+        top: 10px !important;
+        font-size: 12px !important;
+        background-color: var(--color-teal);
+        padding: 5px;
+        border-radius: 10px;
+    }
+
   .movie-poster-wrapper {
     flex-direction: column;
   }
@@ -304,4 +324,12 @@ button.btn-watched-browse:disabled {
     header img {
     width: 100px;
     }
+
+    .watched-movie-card .date-watched {
+    top: initial;
+    bottom: 0;
+    left: 10px;
+    right: initial;
+
+}
  }
