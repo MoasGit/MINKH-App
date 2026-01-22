@@ -47,18 +47,29 @@ nav ul li {
 }
 
 nav ul li:hover {
-  background-color: var(--color-light);
-  color: var(--color-graphite);
+  background-color: var(--color-green);
+    border-color: var(--color-green);
+    color: var(--color-graphite);
 }
 
 /* Active state styling */
 nav ul li.active {
-  background-color: var(--color-teal);
-  border-color: var(--color-teal);
-  color: var(--color-light);
+  background-color: var(--color-green);
+    border-color: var(--color-green);
+    color: var(--color-graphite);
 }
 
 nav ul li.active:hover {
-  background-color: var(--color-turquoise);
-  border-color: var(--color-turquoise);
+  background-color: var(--color-green);
+    border-color: var(--color-green);
+    color: var(--color-graphite);
 }
+
+@media (max-width: 479px) {
+  nav ul {
+    flex-direction: column;
+    text-align: center;
+    padding: 0;
+  }
+}
+

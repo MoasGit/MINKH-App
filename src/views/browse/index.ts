@@ -212,7 +212,7 @@ async function loadGenres(searchSection: HTMLElement) {
     // Populate years (last 30 years)
     const yearSelect = searchSection.querySelector('#year-filter') as HTMLSelectElement;
     const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year >= currentYear - 30; year--) {
+    for (let year = currentYear; year >= currentYear - 100; year--) {
       const option = document.createElement('option');
       option.value = year.toString();
       option.textContent = year.toString();

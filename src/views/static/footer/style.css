@@ -30,3 +30,16 @@ footer p {
     text-align: center;
     right: 0;
 }
+
+
+
+
+ @media (max-width: 479px) {
+   footer {
+    flex-direction: column;
+}
+
+footer p {
+    position: relative;
+}
+}

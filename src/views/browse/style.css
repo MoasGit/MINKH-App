@@ -46,8 +46,9 @@
     width: 100%;
     margin: 0 auto;
     display: block;
-    border: none;
+    border: 2px solid transparent;
     color: var(--color-graphite);
+    background-color: var(--color-light);
     transition: all 0.2s ease-in-out;
     font-size: 20px;
 }
@@ -139,8 +140,8 @@ button#apply-filters:hover {
 
 .search-box input:focus {
   outline: none;
-  background-color: var(--color-light);
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+  box-shadow: 0 0 5px var(--color-green);
+  border: 2px solid var(--color-green);
 }
 
 button#clear-search {
