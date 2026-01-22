@@ -9,7 +9,7 @@ function isDatabaseMovie(movie: DatabaseMovie | TMDBMovie): movie is DatabaseMov
 
 export function createWatchedModal(
   movie: DatabaseMovie | TMDBMovie,
-  onSuccess: (updatedMovie: DatabaseMovie) => void  // ⭐ Pass updated movie back
+  onSuccess: (updatedMovie: DatabaseMovie) => void  
 ): HTMLElement {
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
@@ -128,7 +128,7 @@ export function createWatchedModal(
       }
       
       closeModal();
-      onSuccess(updatedMovie);  // ⭐ Pass the updated movie back
+      onSuccess(updatedMovie);  //   Pass the updated movie back
       
     } catch (error) {
       console.error('Failed to mark as watched:', error);

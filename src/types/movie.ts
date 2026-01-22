@@ -7,7 +7,6 @@ export interface TMDBMovie {
     vote_average: number;
 }
 
-// ⭐ NEW: Extended movie details from TMDB API
 export interface TMDBMovieDetails extends TMDBMovie {
     backdrop_path: string | null;
     runtime: number | null;

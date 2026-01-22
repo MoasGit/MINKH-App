@@ -3,7 +3,7 @@ import type { DatabaseMovie, CreateMovieBody, TMDBMovie } from '../types/movie';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
-// ⭐ NEW: Helper to get all movies (for checking existence)
+//Helper to get all movies (for checking existence)
 async function getAllMovies(): Promise<DatabaseMovie[]> {
   const response = await fetch(`${API_BASE_URL}/movies`);
   if (!response.ok) {
@@ -12,7 +12,7 @@ async function getAllMovies(): Promise<DatabaseMovie[]> {
   return await response.json();
 }
 
-// ⭐ NEW: Helper to find existing movie by tmdb_id
+//Helper to find existing movie by tmdb_id
 async function findExistingMovie(tmdbId: number): Promise<DatabaseMovie | null> {
   const allMovies = await getAllMovies();
   return allMovies.find(m => m.tmdb_id === tmdbId) || null;
@@ -34,7 +34,7 @@ export async function getWatchlist(): Promise<DatabaseMovie[]> {
   }
 }
 
-// ⭐ UPDATED: Lägg till film i watchlist (check first, then insert or update)
+// Lägg till film i watchlist (check first, then insert or update)
 export async function addToWatchlist(movie: TMDBMovie): Promise<DatabaseMovie> {
   try {
     // Check if movie already exists
@@ -163,7 +163,7 @@ export async function getWatched(): Promise<DatabaseMovie[]> {
   }
 }
 
-// ⭐ UPDATED: Add movie directly as watched (check first, then insert or update)
+// Add movie directly as watched (check first, then insert or update)
 export async function addAsWatched(
   movie: TMDBMovie,
   rating: number,
@@ -262,7 +262,7 @@ export async function updateWatched(
   }
 }
 
-// ⭐ NEW: Toggle favorite status
+//Toggle favorite status
 export async function toggleFavorite(
   movieId: number,
   isFavorite: boolean

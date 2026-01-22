@@ -1,1 +1,0 @@
-// Komponent för sökning

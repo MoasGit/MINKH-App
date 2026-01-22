@@ -138,13 +138,13 @@ function displayMovies(
   const watchlistIds = new Set(watchlist.map((m) => m.tmdb_id));
   const watchedIds = new Set(watched.map((m) => m.tmdb_id));
 
-  // ⭐ NYTT: Ta bara de filmer som ska visas
+  // Ta bara de filmer som ska visas
   const moviesToShow = movies.slice(0, visibleMovieCount);
   
-  // ⭐ NYTT: Kolla om det finns fler filmer
+  // Kolla om det finns fler filmer
   const hasMore = visibleMovieCount < movies.length;
   
-  // ⭐ NYTT: Räkna kvarvarande filmer
+  // Räkna kvarvarande filmer
   const remaining = movies.length - visibleMovieCount;
 
   // ÄNDRA: Använd moviesToShow istället för movies
@@ -223,13 +223,13 @@ const btn = loadMoreBtn.querySelector("#load-more-btn");
   }
  
 
-  // ⭐ NEW: Attach click handlers for movie details
+  //  Attach click handlers for movie details
   attachDetailsHandlers(container, moviesToShow);
   attachWatchlistHandlers(container, moviesToShow);
   attachWatchedHandlers(container, moviesToShow);
 }
 
-// ⭐ NEW: Handle clicks to open movie details modal
+//  Handle clicks to open movie details modal
 function attachDetailsHandlers(container: HTMLElement, movies: TMDBMovie[]) {
   const posterWrappers = container.querySelectorAll(".movie-poster-wrapper");
 
