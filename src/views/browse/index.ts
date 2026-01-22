@@ -398,8 +398,6 @@ function displayMovies(
   attachWatchlistHandlers(container, moviesToShow);
   attachWatchedHandlers(container, moviesToShow);
 }
-
-// ⭐ Keep all your existing attachment functions exactly as they are:
 // attachDetailsHandlers, attachWatchlistHandlers, attachWatchedHandlers, showNotification
 
 function attachDetailsHandlers(container: HTMLElement, movies: TMDBMovie[]) {

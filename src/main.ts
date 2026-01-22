@@ -3,7 +3,7 @@ import { setRenderCallback } from "./lib/store.ts";
 import { clearAllMovies } from "./services/movieApi";
 
 // Statiska sidor
-// måste refererera till den specifika .html filen med "?raw" för att kunna läsas in
+
 import headerHTML from "./views/static/header/index.html?raw";
 import footerHTML from "./views/static/footer/index.html?raw";
 import browse from "./views/browse/index.ts";
