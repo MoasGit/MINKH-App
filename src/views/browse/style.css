@@ -266,12 +266,15 @@ button.btn-watched-browse:disabled {
 }
 
 .date-added {
-  margin: 0;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 12px;
-  color: var(--color-light);
+    margin: 0;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    background-color: var(--color-light);
+    color: var(--color-graphite);
+    border-radius: 10px;
+    padding: 5px;
 }
 
 .movie-card.watched-movie-card .movie-poster-wrapper {
@@ -332,13 +335,7 @@ button.btn-watched-browse:disabled {
     width: 32%;
   }
 
-      .date-added {
-        top: 10px !important;
-        font-size: 12px !important;
-        background-color: var(--color-teal);
-        padding: 5px;
-        border-radius: 10px;
-    }
+   
 
   .movie-poster-wrapper {
     flex-direction: column;
@@ -353,8 +350,12 @@ button.btn-watched-browse:disabled {
     padding: 10px;
   }
 
+  .movie-card.watched:before {
+    font-size: 10px;
+  }
+
   .date-added {
-    top: 5px;
+ 
     font-size: 10px;
     
 }
@@ -413,6 +414,7 @@ button.btn-watched-browse:disabled {
     bottom: 0;
     left: 10px;
     right: initial;
+    
 
 }
  }
