@@ -1,5 +1,6 @@
-.browse {
-  background-color: var(--color-teal);
+.browse, .watchlist, .watched {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .notification.success.show {
