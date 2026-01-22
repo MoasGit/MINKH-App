@@ -1,5 +1,5 @@
 // src/views/watchlist/index.ts
-import { getWatchlist, removeFromWatchlist } from "../../services/movieApi";
+import { getWatchlist, removeFromWatchlist } from "../../lib/store";
 import { fetchMovieDetails, TMDB_IMAGE_BASE_URL } from "../../services/tmdbApi";
 import { createWatchedModal } from "../../components/watchedModal";
 import { createMovieDetailsModal } from "../../components/movieDetailsModal";

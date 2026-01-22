@@ -1,9 +1,5 @@
 // src/views/watched/index.ts
-import {
-  getWatched,
-  deleteMovie,
-  toggleFavorite,
-} from "../../services/movieApi";
+import { getWatched, deleteMovie, toggleFavorite } from "../../lib/store";
 import { fetchMovieDetails, TMDB_IMAGE_BASE_URL } from "../../services/tmdbApi";
 import { createEditWatchedModal } from "../../components/editWatchedModal";
 import { createMovieDetailsModal } from "../../components/movieDetailsModal";
@@ -39,7 +35,6 @@ export default function watched(): HTMLElement {
   container.appendChild(moviesContainer);
 
   let allMovies: DatabaseMovie[] = [];
-  let currentFilter: FilterType = "all";
 
   loadWatched(countContainer, moviesContainer).then((movies) => {
     allMovies = movies;
@@ -54,7 +49,6 @@ export default function watched(): HTMLElement {
       filterButtons.forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
-      currentFilter = filter;
       const filteredMovies = applyFilter(allMovies, filter);
       displayWatched(
         filteredMovies,
