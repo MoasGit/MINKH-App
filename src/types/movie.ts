@@ -1,3 +1,4 @@
+// Film från TMDB API
 export interface TMDBMovie {
     id: number;
     title: string;
@@ -7,6 +8,7 @@ export interface TMDBMovie {
     vote_average: number;
 }
 
+// Film från TMDB API - med extra details för modalerna
 export interface TMDBMovieDetails extends TMDBMovie {
     backdrop_path: string | null;
     runtime: number | null;
@@ -20,7 +22,7 @@ export interface TMDBMovieDetails extends TMDBMovie {
     status?: string;
 }
 
-// Film från din databas (sparade filmer med watchlist eller watched status)
+// Film från vår databas (sparade filmer med watchlist eller watched status)
 export interface DatabaseMovie {
     id: number; // Databas-id
     tmdb_id: number; // TMDB-id
@@ -38,7 +40,7 @@ export interface DatabaseMovie {
     date_watched: string | null;
 }
 
-// Typ som matchar serverns CreateMovieBody-interface
+// Blueprint för att skapa en film i vår db
 export interface CreateMovieBody {
     tmdb_id: number;
     title: string;

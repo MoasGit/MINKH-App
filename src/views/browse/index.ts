@@ -93,7 +93,7 @@ export default function browse(): HTMLElement {
 
   const moviesContainer = document.createElement("div");
   moviesContainer.className = "movies-grid";
-  moviesContainer.innerHTML = "<p>Loading movies...</p>";
+  moviesContainer.innerHTML = "";
   container.appendChild(moviesContainer);
 
   // Load genres first
@@ -226,7 +226,7 @@ async function loadGenres(searchSection: HTMLElement) {
 async function loadMoviesByCategory(category: CategoryType, container: HTMLElement) {
   visibleMovieCount = 12;
   try {
-    container.innerHTML = '<p class="loading">Loading movies...</p>';
+    container.innerHTML = '';
 
     let movies: TMDBMovie[];
     let categoryTitle: string;
@@ -343,7 +343,7 @@ function displayMovies(
             onerror="this.src='/placeholder.png'"
           />
           <div class="poster-overlay"></div>
-        </div>
+        
         
         <div class="movie-info">
           <h3>${movie.title}</h3>
@@ -369,6 +369,7 @@ function displayMovies(
             }
           </div>
         </div>
+      </div>
       </div>
     `;
     })

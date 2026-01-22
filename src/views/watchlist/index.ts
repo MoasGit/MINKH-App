@@ -153,7 +153,7 @@ function attachDetailsHandlers(
 
       const overlay = wrapper.querySelector(".poster-overlay") as HTMLElement;
       if (overlay) {
-        overlay.innerHTML = '<span class="view-details">Loading...</span>';
+        overlay.innerHTML = '';
       }
 
       try {

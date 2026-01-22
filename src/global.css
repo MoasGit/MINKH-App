@@ -33,4 +33,11 @@ body {
 
 h3 {
   margin: 0px;
+  color: var(--color-light);
+}
+
+span.year {
+    color: var(--color-light);
+    font-size: 12px;
+    margin-top: 8px;
 }

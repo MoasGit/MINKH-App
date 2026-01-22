@@ -16,6 +16,7 @@ footer {
     color: var(--color-light);
     transition: all .2s ease-in-out;
     cursor: pointer;
+    z-index: 9;
 }
 
 #clear-db-btn:hover {
