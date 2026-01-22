@@ -12,7 +12,7 @@ import {
   addToWatchlist,
   getWatchlist,
   getWatched,
-} from "../../services/movieApi";
+} from "../../lib/store";
 import { createWatchedModal } from "../../components/watchedModal";
 import { createMovieDetailsModal } from "../../components/movieDetailsModal";
 import type { TMDBMovie, DatabaseMovie } from "../../types/movie";
