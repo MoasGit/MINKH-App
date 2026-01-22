@@ -14,7 +14,7 @@ export default function watchList(): HTMLElement {
   header.innerHTML = `<h2>My Watchlist</h2>`;
   container.appendChild(header);
 
-  // ⭐ NEW: Separate div for the count
+  //  Separate div for the count
   const countContainer = document.createElement("div");
   countContainer.className = "watchlist-count-container";
   container.appendChild(countContainer);
@@ -61,12 +61,12 @@ function displayWatchlist(
     return;
   }
 
-  // ⭐ Update count separately
+  //   Update count separately
   countContainer.innerHTML = `
     <p class="watchlist-count">${movies.length} movie${movies.length !== 1 ? "s" : ""} in your watchlist</p>
   `;
 
-  // ⭐ Update movies grid separately
+  //   Update movies grid separately
   moviesContainer.innerHTML = movies
     .map((movie) => {
       const isWatched = movie.is_watched === 1;
@@ -124,7 +124,7 @@ function displayWatchlist(
     })
     .join("");
 
-  // ⭐ Attach handlers
+  //   Attach handlers
   attachDetailsHandlers(moviesContainer, movies);
 
   if (movies.some((m) => m.is_watched === 0)) {
@@ -376,7 +376,7 @@ function attachRemoveHandlers(
             </div>
           `;
         } else {
-          // ⭐ Update count after removal
+          //   Update count after removal
           countContainer.innerHTML = `
             <p class="watchlist-count">${remainingCards.length} movie${remainingCards.length !== 1 ? "s" : ""} in your watchlist</p>
           `;

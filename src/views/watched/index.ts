@@ -27,7 +27,7 @@ export default function watched(): HTMLElement {
   `;
   container.appendChild(header);
 
-  // ⭐ NEW: Separate div for the count
+  //  Separate div for the count
   const countContainer = document.createElement("div");
   countContainer.className = "watched-count-container";
   container.appendChild(countContainer);
@@ -120,12 +120,12 @@ function displayWatched(
     return;
   }
 
-  // ⭐ Update count separately
+  //   Update count separately
   countContainer.innerHTML = `
     <p class="watched-count">${movies.length} movie${movies.length !== 1 ? "s" : ""} found</p>
   `;
 
-  // ⭐ Update movies grid separately
+  //   Update movies grid separately
   moviesContainer.innerHTML = movies
     .map((movie) => {
       const isFavorite = movie.is_favorite === 1;
