@@ -35,7 +35,7 @@ export async function fetchMovies(query: string): Promise<TMDBMovie[]> {
   return data.results;
 }
 
-// ⭐ NEW: Hämta fullständig filminformation (inkl. backdrop, runtime, genres)
+// Hämta fullständig filminformation (inkl. backdrop, runtime, genres)
 export async function fetchMovieDetails(tmdbId: number): Promise<TMDBMovieDetails> {
   const response = await fetch(
     `${TMDB_BASE_URL}/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`

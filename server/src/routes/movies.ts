@@ -389,4 +389,22 @@ router.get('/user/stats', (req: Request, res: Response) => {
   }
 });
 
+/* Töm hela databasen (Ta bort alla filmer) */
+router.delete('/admin/clear-all', (req: Request, res: Response) => {
+  try {
+    const result = db.prepare('DELETE FROM movies').run();
+    
+    res.json({
+      message: 'Database cleared successfully',
+      deletedCount: result.changes
+    });
+  } catch (error) {
+    console.error('Error clearing database:', error);
+    res.status(500).json({
+      error: 'Failed to clear database',
+      message: (error as Error).message
+    });
+  }
+});
+
 export default router;
