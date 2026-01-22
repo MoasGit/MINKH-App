@@ -4,5 +4,28 @@ footer {
   padding: var(--spacing-md);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+    position: relative;
+}
+
+#clear-db-btn {
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid var(--color-red);
+    background: transparent;
+    color: var(--color-light);
+    transition: all .2s ease-in-out;
+    cursor: pointer;
+}
+
+#clear-db-btn:hover {
+    background-color: var(--color-red);
+    color: var(--color-graphite);
+}
+
+footer p {
+    position: absolute;
+    left: 0;
+    text-align: center;
+    right: 0;
 }

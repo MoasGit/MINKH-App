@@ -305,3 +305,19 @@ export async function deleteMovie(movieId: number): Promise<void> {
     throw error;
   }
 }
+
+// Töm hela databasen
+export async function clearAllMovies(): Promise<void> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies/admin/clear-all`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to clear database');
+    }
+  } catch (error) {
+    console.error('Error clearing database:', error);
+    throw error;
+  }
+}

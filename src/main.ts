@@ -1,5 +1,6 @@
 import "./style.css";
 import { setRenderCallback } from "./lib/store.ts";
+import { clearAllMovies } from "./services/movieApi";
 
 // Statiska sidor
 // måste refererera till den specifika .html filen med "?raw" för att kunna läsas in
@@ -30,7 +31,6 @@ const currentPage = (): string | HTMLElement => {
 
 const app = document.querySelector("#app")!;
 
-// ⭐ NEW: Function to update active navigation state
 const updateActiveNav = () => {
   const currentPath = window.location.pathname;
   const navLinks = document.querySelectorAll('nav ul li a');
@@ -71,10 +71,75 @@ const renderApp = () => {
 
   }
 
-  // ⭐ NEW: Update active nav after rendering
   updateActiveNav();
 
+  setupClearDatabaseButton();
+
 };
+
+const setupClearDatabaseButton = () => {
+  const clearBtn = document.querySelector('#clear-db-btn') as HTMLButtonElement;
+  
+  if (clearBtn) {
+    clearBtn.addEventListener('click', async () => {
+      const confirmed = confirm(
+        '⚠️ WARNING: This will delete ALL movies from your database!\n\n' +
+        'This action cannot be undone.\n\n' +
+        'Are you sure you want to continue?'
+      );
+      
+      if (!confirmed) return;
+      
+      // Double confirmation
+      const doubleConfirmed = confirm(
+        'This is your last chance!\n\n' +
+        'Click OK to permanently delete all data.'
+      );
+      
+      if (!doubleConfirmed) return;
+      
+      clearBtn.disabled = true;
+      clearBtn.textContent = '🔄 Clearing...';
+      
+      try {
+        await clearAllMovies();
+        
+        clearBtn.textContent = '✅ Cleared!';
+        
+        // Show success notification
+        showClearNotification('Database cleared successfully!', 'success');
+        
+        // Reload page after short delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Failed to clear database:', error);
+        clearBtn.textContent = '❌ Failed';
+        showClearNotification('Failed to clear database', 'error');
+        
+        setTimeout(() => {
+          clearBtn.disabled = false;
+          clearBtn.textContent = '🗑️ Clear All Data';
+        }, 2000);
+      }
+    });
+  }
+};
+
+function showClearNotification(message: string, type: 'success' | 'error' = 'success') {
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  setTimeout(() => notification.classList.add('show'), 10);
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
 
 // Initialisera appen
 renderApp();
